@@ -1,0 +1,11 @@
+name = "autoGraph"
+uuid = "6733646f-fa55-4635-ac9b-3746950ff949"
+authors = ["Raphael Darley <raphael@raphaeldarley.com>"]
+version = "0.1.0"
+
+[deps]
+DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
+GR_jll = "d2c73de3-f751-5644-a686-071e5b155ba9"
+PackageCompiler = "9b87118b-4619-50d2-8e1e-99f35a4d4d9d"
+Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
+XLSX = "fdbf4ff8-1666-58a4-91e7-1b58723a45e0"
