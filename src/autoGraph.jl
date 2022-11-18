@@ -1,7 +1,7 @@
 import XLSX
 using Plots
 # using Printf
-using Dates
+# using Dates
 using TOML
 
 
@@ -60,6 +60,7 @@ function run_graph_gen()
 
     println("1: Standard chart")
     println("2: Hubbert linearisation")
+    println("3: Annual against cumulative")
     print("please enter enter number(s) of desired charts in comma seperated list eg. \"1,2\" default is standard\n>>>")
     type_resp = readline()
     if type_resp == ""
@@ -74,7 +75,7 @@ function run_graph_gen()
 
     if "1" in chart_types # STANDARD GRAPH
 
-        print("Please enter a path to save the files.\n>>>")
+        print("Please enter a path to save the standard files.\n>>>")
         out_path = readline()
         out_path = Base.Filesystem.mkpath(out_path)
         # println("path created")
@@ -99,13 +100,15 @@ function run_graph_gen()
             plot_draft = plot(x_series, series[:], legend=false)
             title!(plot_draft, plot_name)
 
+            plot_name = join(split(plot_name, ":"))
+
             png(plot_draft, "$out_path/$plot_name")
         end
     end
 
     if "2" in chart_types # Hubbert linearisation
 
-        print("Please enter a path to save the files.\n>>>")
+        print("Please enter a path to save the HL files.\n>>>")
         out_path = readline()
         out_path = Base.Filesystem.mkpath(out_path)
 
@@ -130,12 +133,43 @@ function run_graph_gen()
             end
 
 
-
-
-
-            plot_draft = scatter(cumulative[2:end], apcp[2:end], legend=false)
+            plot_draft = scatter(cumulative[2:end], apcp[2:end], legend=false, xlabel="cumulative", ylabel="annual/cumulative")
             title!(plot_draft, plot_name)
 
+            plot_name = join(split(plot_name, ":"))
+            png(plot_draft, "$out_path/$plot_name")
+        end
+    end
+
+    if "3" in chart_types # Annual against cumulative
+
+        print("Please enter a path to save the annaul vs cumulative files.\n>>>")
+        out_path = readline()
+        out_path = Base.Filesystem.mkpath(out_path)
+
+        for i in type_start:type_end
+            type_name = op_worksheet["$type_col$i"]
+            if (typeof(type_name) == Missing)
+                # println("skipped")
+                continue
+            end
+            type_name = strip(type_name)
+
+            plot_name = "$worksheet_name-$type_name"
+
+            series = op_worksheet["$x_start$i:$x_end$i"][:]
+
+            cumulative::Vector{Float64} = [series[1]]
+            apcp::Vector{Float64} = [1.0]
+
+            for d in series
+                push!(cumulative, cumulative[end] + d)
+            end
+
+            plot_draft = scatter(cumulative[2:end], series[2:end], legend=false, xlabel="cumulative", ylabel="annual")
+            title!(plot_draft, plot_name)
+
+            plot_name = join(split(plot_name, ":"))
             png(plot_draft, "$out_path/$plot_name")
         end
     end
@@ -151,13 +185,19 @@ end
 println("Welcome to autoGraph!")
 println("This program is designed to automatically create graphs from the BP stats review")
 
-config = TOML.tryparsefile("config.toml")
+config = Dict()
+try
+    global config = TOML.tryparsefile("config.toml")
+catch
+end
+
 if isa(config, TOML.ParserError)
     config = config.table
 end
 
 if "XLSX-file" in keys(config)
     file_path = config["XLSX-file"]
+    println("Using file from config.toml")
 else
     print("Please enter path to XLSX file.\n>>>")
     file_path = readline()
