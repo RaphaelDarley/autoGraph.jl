@@ -16,6 +16,7 @@ x_end = "BF"
 unit_setting = 1
 
 for i in type_start:type_end
+    i = 49 # Algeria
     type_name = op_worksheet["$type_col$i"]
     if (typeof(type_name) == Missing)
         # println("skipped")
@@ -41,14 +42,40 @@ for i in type_start:type_end
     end
 
     series_start = 1
-    for (i, p) in enumerate(apcp)
-        if p < 0.06
+    # for (i, p) in enumerate(apcp)
+    #     if p < 0.06
+    #         series_start = i
+    #         break
+    #     end
+    # end
+
+    grad_acc = []
+    for i in eachindex(cumulative[1:end - 1])
+        # println(i)
+        Δy = apcp[i + 1] - apcp[i]
+        Δx = cumulative[i + 1] - cumulative[i]
+
+        grad = Δy / Δx
+        # println(Δy / Δx) 
+        push!(grad_acc, grad)
+    end
+
+    map!((m) -> m>-0.0025, grad_acc, grad_acc)
+
+    for i in eachindex(grad_acc[1:end - 1])
+        if grad_acc[i] && grad_acc[i + 1]
             series_start = i
             break
         end
     end
 
 
+    # for i in reverse(eachindex(grad_acc[1: end-12]))
+    #     # println(i)
+    #     grad_diff = (grad_acc[i+1] - grad_acc[i]) / grad_acc[i + 1]
+
+    #     println(grad_diff)
+    # end
 
 
     global plot_draft = scatter(cumulative[series_start:end], apcp[series_start:end], legend=false)
@@ -62,5 +89,6 @@ for i in type_start:type_end
     end
 
     plot_name = join(split(plot_name, ":"))
-    display(plot_draft)
+    break
 end
+display(plot_draft)
