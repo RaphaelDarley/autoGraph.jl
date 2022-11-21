@@ -69,7 +69,19 @@ function run_graph_gen()
         chart_types = [strip(t) for t in split(type_resp, ",")]
     end
 
-    println("chart types: $chart_types")
+    # println("chart types: $chart_types")
+
+    println("0: none")
+    println("1: Kb/d")
+
+    print("Select source unit setting, leave blank for other.\n>>>")
+    unit_setting = readline()
+    if unit_setting == ""
+        unit_setting = "0"
+    end
+
+    unit_setting = parse(Int, unit_setting)
+
 
 
 
@@ -78,10 +90,6 @@ function run_graph_gen()
         print("Please enter a path to save the standard files.\n>>>")
         out_path = readline()
         out_path = Base.Filesystem.mkpath(out_path)
-        # println("path created")
-
-        # println("start: $type_start")
-        # println("end: $type_end")
 
         x_series = op_worksheet["$x_start$x_row:$x_end$x_row"][:]
 
@@ -97,8 +105,17 @@ function run_graph_gen()
 
             series = op_worksheet["$x_start$i:$x_end$i"]
 
+            if unit_setting == 1
+                series = 365 / 1000 .* series
+            end
+
+
             plot_draft = plot(x_series, series[:], legend=false)
             title!(plot_draft, plot_name)
+
+            if unit_setting == 1
+                plot!(plot_draft, ylabel="annual Mb/a")
+            end
 
             plot_name = join(split(plot_name, ":"))
 
@@ -124,6 +141,11 @@ function run_graph_gen()
 
             series = op_worksheet["$x_start$i:$x_end$i"][:]
 
+            if unit_setting == 1
+                series = 365 / 1_000_000 .* series
+            end
+
+
             cumulative::Vector{Float64} = [series[1]]
             apcp::Vector{Float64} = [1.0]
 
@@ -133,8 +155,15 @@ function run_graph_gen()
             end
 
 
-            plot_draft = scatter(cumulative[2:end], apcp[2:end], legend=false, xlabel="cumulative", ylabel="annual/cumulative")
+            plot_draft = scatter(cumulative[2:end], apcp[2:end], legend=false)
             title!(plot_draft, plot_name)
+
+            if unit_setting == 0
+                plot!(plot_draft, xlabel="cumulative", ylabel="annual/cumulative")
+
+            elseif unit_setting == 1
+                plot!(plot_draft, xlabel="cumulative, Gb", ylabel="annual/cumulative")
+            end
 
             plot_name = join(split(plot_name, ":"))
             png(plot_draft, "$out_path/$plot_name")
@@ -159,15 +188,29 @@ function run_graph_gen()
 
             series = op_worksheet["$x_start$i:$x_end$i"][:]
 
+            if unit_setting == 1
+                series = 365 / 1000 .* series
+            end
+
             cumulative::Vector{Float64} = [series[1]]
-            apcp::Vector{Float64} = [1.0]
 
             for d in series
                 push!(cumulative, cumulative[end] + d)
             end
 
-            plot_draft = scatter(cumulative[2:end], series[2:end], legend=false, xlabel="cumulative", ylabel="annual")
+            if unit_setting == 1
+                cumulative = 1 / 1000 .* cumulative
+            end
+
+            plot_draft = scatter(cumulative[2:end], series[2:end], legend=false)
             title!(plot_draft, plot_name)
+
+            if unit_setting == 0
+                plot!(plot_draft, xlabel="cumulative", ylabel="annual")
+
+            elseif unit_setting == 1
+                plot!(plot_draft, xlabel="cumulative Gb", ylabel="annual Mb")
+            end
 
             plot_name = join(split(plot_name, ":"))
             png(plot_draft, "$out_path/$plot_name")
