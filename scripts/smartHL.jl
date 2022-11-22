@@ -1,6 +1,7 @@
 import XLSX
 using Plots
 using DataFrames, GLM
+using Printf
 
 
 xf = XLSX.readxlsx("bp-stats-review-2022-all-data.xlsx")
@@ -17,7 +18,7 @@ x_end = "BF"
 unit_setting = 1
 
 for i in type_start:type_end
-    println(i)
+    # println(i)
     # i = 49 # Algeria
     type_name = op_worksheet["$type_col$i"]
     if (typeof(type_name) == Missing)
@@ -106,6 +107,7 @@ for i in type_start:type_end
 
     Qmax = -coef(best_fit)[1] / coef(best_fit)[2]
 
+
     if cumulative[fit_start] < Qmax
         plot!(plot_draft, (x) -> coef(best_fit)[1] + coef(best_fit)[2] * x, cumulative[fit_start], Qmax)
     else
@@ -114,6 +116,16 @@ for i in type_start:type_end
 
     plot_name = join(split(plot_name, ":"))
 
+    eurr_text = @sprintf "EURR: %.2f" Qmax
+
+    if unit_setting == 1
+        eurr_text *= "Gb"
+    end
+
+    if Qmax !== NaN
+        annotate!(plot_draft, cumulative[end] * 0.9, apcp[series_start] * 0.9, text(eurr_text, 10, :black, :right, :bottom))
+    end
     display(plot_draft)
 end
 
+display(plot_draft)

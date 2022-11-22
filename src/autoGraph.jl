@@ -61,6 +61,7 @@ function run_graph_gen()
     println("1: Standard chart")
     println("2: Hubbert linearisation")
     println("3: Annual against cumulative")
+    println("3: Smart HL")
     print("please enter enter number(s) of desired charts in comma seperated list eg. \"1,2\" default is standard\n>>>")
     type_resp = readline()
     if type_resp == ""
@@ -213,6 +214,106 @@ function run_graph_gen()
             end
 
             plot_name = join(split(plot_name, ":"))
+            png(plot_draft, "$out_path/$plot_name")
+        end
+    end
+
+    if "4" in chart_types
+
+        print("Please enter a path to save the smart HL.\n>>>")
+        out_path = readline()
+        out_path = Base.Filesystem.mkpath(out_path)
+
+        for i in type_start:type_end
+            type_name = op_worksheet["$type_col$i"]
+            if (typeof(type_name) == Missing)
+                # println("skipped")
+                continue
+            end
+            type_name = strip(type_name)
+
+            plot_name = "HL $worksheet_name-$type_name"
+
+            series = op_worksheet["$x_start$i:$x_end$i"][:]
+
+            if unit_setting == 1
+                series = 365 / 1_000_000 .* series
+            end
+
+
+            cumulative::Vector{Float64} = [series[1]]
+            apcp::Vector{Float64} = [1.0]
+
+            for d in series
+                push!(cumulative, cumulative[end] + d)
+                push!(apcp, d / cumulative[end])
+            end
+
+            series_start = 1
+
+            grad_acc = []
+            for i in eachindex(cumulative[1:end-1])
+                Δy = apcp[i+1] - apcp[i]
+                Δx = cumulative[i+1] - cumulative[i]
+
+                grad = Δy / Δx
+                push!(grad_acc, grad)
+            end
+
+            map!((m) -> m > -0.0025, grad_acc, grad_acc)
+
+            for i in eachindex(grad_acc[1:end-1])
+                if grad_acc[i] && grad_acc[i+1]
+                    series_start = i
+                    break
+                end
+            end
+
+
+            plot_draft = scatter(cumulative[series_start:end], apcp[series_start:end], legend=false)
+            title!(plot_draft, plot_name)
+
+            if unit_setting == 0
+                plot!(plot_draft, xlabel="cumulative", ylabel="annual/cumulative")
+
+            elseif unit_setting == 1
+                plot!(plot_draft, xlabel="cumulative, Gb", ylabel="annual/cumulative")
+            end
+
+            best_fit = lm(@formula(Y ~ X), DataFrame(X=cumulative, Y=apcp))
+            fit_start = 1
+
+            for i in eachindex(grad_acc[1:end-12])
+                data = DataFrame(X=cumulative[i:end], Y=apcp[i:end])
+                ols = lm(@formula(Y ~ X), data)
+
+                if r2(ols) > r2(best_fit)
+                    best_fit = ols
+                    fit_start = i
+                end
+            end
+
+
+            Qmax = -coef(best_fit)[1] / coef(best_fit)[2]
+
+
+            if cumulative[fit_start] < Qmax
+                plot!(plot_draft, (x) -> coef(best_fit)[1] + coef(best_fit)[2] * x, cumulative[fit_start], Qmax)
+            else
+                plot!(plot_draft, (x) -> coef(best_fit)[1] + coef(best_fit)[2] * x)
+            end
+
+            plot_name = join(split(plot_name, ":"))
+
+            eurr_text = @sprintf "EURR: %.2f" Qmax
+
+            if unit_setting == 1
+                eurr_text *= "Gb"
+            end
+
+            if Qmax !== NaN
+                annotate!(plot_draft, Qmax * 0.95, apcp[series_start] * 0.9, text(eurr_text, 10, :black, :right, :bottom))
+            end
             png(plot_draft, "$out_path/$plot_name")
         end
     end
