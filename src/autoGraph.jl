@@ -312,7 +312,7 @@ function run_graph_gen()
             end
 
             if Qmax !== NaN
-                annotate!(plot_draft, Qmax * 0.95, apcp[series_start] * 0.9, text(eurr_text, 10, :black, :right, :bottom))
+                annotate!(plot_draft, Qmax * 0.95, maximum(apcp[series_start:end]) * 0.9, text(eurr_text, 10, :black, :right, :bottom))
             end
             png(plot_draft, "$out_path/$plot_name")
         end
