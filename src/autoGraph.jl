@@ -74,6 +74,8 @@ function run_graph_gen()
 
     println("0: none")
     println("1: Kb/d")
+    println("2: Bcf/d")
+    println("3: Bcm/a (Gcm/a)")
 
     print("Select source unit setting, leave blank for other.\n>>>")
     unit_setting = readline()
@@ -108,6 +110,10 @@ function run_graph_gen()
 
             if unit_setting == 1
                 series = 365 / 1000 .* series
+            elseif unit_setting == 2
+                series = 365 / 1000 .* series
+            elseif unit_setting == 3
+                series = series
             end
 
 
@@ -116,6 +122,10 @@ function run_graph_gen()
 
             if unit_setting == 1
                 plot!(plot_draft, ylabel="annual Mb/a")
+            elseif unit_setting == 2
+                plot!(plot_draft, ylabel="annual Tcf/a")
+            elseif unit_setting == 3
+                plot!(plot_draft, ylabel="annual Tcm/a")
             end
 
             plot_name = join(split(plot_name, ":"))
@@ -144,6 +154,10 @@ function run_graph_gen()
 
             if unit_setting == 1
                 series = 365 / 1_000_000 .* series
+            elseif unit_setting == 2
+                series = 365 / 1_000 .* series
+            elseif unit_setting == 3
+                series = series
             end
 
 
@@ -161,9 +175,12 @@ function run_graph_gen()
 
             if unit_setting == 0
                 plot!(plot_draft, xlabel="cumulative", ylabel="annual/cumulative")
-
             elseif unit_setting == 1
                 plot!(plot_draft, xlabel="cumulative, Gb", ylabel="annual/cumulative")
+            elseif unit_setting == 2
+                plot!(plot_draft, xlabel="cumulative, Tcf", ylabel="annual/cumulative")
+            elseif unit_setting == 3
+                plot!(plot_draft, xlabel="cumulative, Bcm", ylabel="annual/cumulative")
             end
 
             plot_name = join(split(plot_name, ":"))
@@ -191,6 +208,10 @@ function run_graph_gen()
 
             if unit_setting == 1
                 series = 365 / 1000 .* series
+            elseif unit_setting == 2
+                series = 365 / 1000 .* series
+            elseif unit_setting == 3
+                series = series
             end
 
             cumulative::Vector{Float64} = [series[1]]
@@ -201,6 +222,10 @@ function run_graph_gen()
 
             if unit_setting == 1
                 cumulative = 1 / 1000 .* cumulative
+            elseif unit_setting == 2
+                cumulative = cumulative
+            elseif unit_setting == 3
+                cumulative = cumulative
             end
 
             plot_draft = scatter(cumulative[2:end], series[2:end], legend=false)
@@ -208,9 +233,12 @@ function run_graph_gen()
 
             if unit_setting == 0
                 plot!(plot_draft, xlabel="cumulative", ylabel="annual")
-
             elseif unit_setting == 1
                 plot!(plot_draft, xlabel="cumulative Gb", ylabel="annual Mb")
+            elseif unit_setting == 2
+                plot!(plot_draft, xlabel="cumulative, Tcf", ylabel="annual/cumulative")
+            elseif unit_setting == 3
+                plot!(plot_draft, xlabel="cumulative, Bcm", ylabel="annual/cumulative")
             end
 
             plot_name = join(split(plot_name, ":"))
@@ -238,6 +266,10 @@ function run_graph_gen()
 
             if unit_setting == 1
                 series = 365 / 1_000_000 .* series
+            elseif unit_setting == 2
+                series = 365 / 1_000 .* series
+            elseif unit_setting == 3
+                series = series
             end
 
 
@@ -275,9 +307,12 @@ function run_graph_gen()
 
             if unit_setting == 0
                 plot!(plot_draft, xlabel="cumulative", ylabel="annual/cumulative")
-
             elseif unit_setting == 1
                 plot!(plot_draft, xlabel="cumulative, Gb", ylabel="annual/cumulative")
+            elseif unit_setting == 2
+                plot!(plot_draft, xlabel="cumulative, Tcf", ylabel="annual/cumulative")
+            elseif unit_setting == 3
+                plot!(plot_draft, xlabel="cumulative, Bcm", ylabel="annual/cumulative")
             end
 
             best_fit = lm(@formula(Y ~ X), DataFrame(X=cumulative, Y=apcp))
@@ -309,6 +344,10 @@ function run_graph_gen()
 
             if unit_setting == 1
                 eurr_text *= "Gb"
+            elseif unit_setting == 2
+                eurr_text *= "Tcf"
+            elseif unit_setting == 3
+                eurr_text *= "Bcm"
             end
 
             if Qmax !== NaN
