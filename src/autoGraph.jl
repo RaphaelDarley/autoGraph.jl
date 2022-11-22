@@ -61,7 +61,7 @@ function run_graph_gen()
     println("1: Standard chart")
     println("2: Hubbert linearisation")
     println("3: Annual against cumulative")
-    println("3: Smart HL")
+    println("4: Smart HL")
     print("please enter enter number(s) of desired charts in comma seperated list eg. \"1,2\" default is standard\n>>>")
     type_resp = readline()
     if type_resp == ""
