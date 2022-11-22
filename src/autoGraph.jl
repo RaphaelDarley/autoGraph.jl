@@ -3,6 +3,8 @@ using Plots
 # using Printf
 # using Dates
 using TOML
+using Printf
+using Dates
 
 
 function contains_string(vec, str)
@@ -246,7 +248,7 @@ function run_graph_gen()
         end
     end
 
-    if "4" in chart_types
+    if "4" in chart_types # smart HL
 
         print("Please enter a path to save the smart HL.\n>>>")
         out_path = readline()
@@ -350,9 +352,14 @@ function run_graph_gen()
                 eurr_text *= "Bcm"
             end
 
-            if Qmax !== NaN
-                annotate!(plot_draft, Qmax * 0.95, maximum(apcp[series_start:end]) * 0.9, text(eurr_text, 10, :black, :right, :bottom))
+            if Qmax !== NaN && cumulative[end] < Qmax
+                annotate!(plot_draft, Qmax, maximum(apcp[series_start:end]), text(eurr_text, 10, :black, :right, :top))
             end
+
+            watermark = @sprintf "generated on: %s, by autoGraph (Raphael Darley)\n from: %s" Date(now()) basename(file_path)
+
+            annotate!(plot_draft, cumulative[end] * 0.35, maximum(apcp[series_start:end]), text(watermark, 6, :black, :left, :bottom))
+
             png(plot_draft, "$out_path/$plot_name")
         end
     end
