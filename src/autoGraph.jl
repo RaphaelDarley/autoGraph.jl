@@ -352,13 +352,15 @@ function run_graph_gen()
                 eurr_text *= "Bcm"
             end
 
-            if Qmax !== NaN && cumulative[end] < Qmax
-                annotate!(plot_draft, Qmax, maximum(apcp[series_start:end]), text(eurr_text, 10, :black, :right, :top))
-            end
-
             watermark = @sprintf "generated on: %s, by autoGraph (Raphael Darley)\n from: %s" Date(now()) basename(file_path)
 
-            annotate!(plot_draft, cumulative[end] * 0.35, maximum(apcp[series_start:end]), text(watermark, 6, :black, :left, :bottom))
+            if Qmax !== NaN && cumulative[end] < Qmax
+                annotate!(plot_draft, Qmax, maximum(apcp[series_start:end]), text(eurr_text, 10, :black, :right, :top))
+                annotate!(plot_draft, Qmax * 0.5, maximum(apcp[series_start:end]), text(watermark, 6, :black, :centre, :bottom))
+            else
+                annotate!(plot_draft, cumulative[end] * 0.5, maximum(apcp[series_start:end]), text(watermark, 6, :black, :centre, :bottom))
+            end
+
 
             png(plot_draft, "$out_path/$plot_name")
         end

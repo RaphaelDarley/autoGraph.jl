@@ -123,13 +123,27 @@ if unit_setting == 1
     eurr_text *= "Gb"
 end
 
-if Qmax !== NaN && cumulative[end] < Qmax
-    annotate!(plot_draft, Qmax, apcp[series_start], text(eurr_text, 10, :black, :right, :top))
-end
+# if Qmax !== NaN && cumulative[end] < Qmax
+#     annotate!(plot_draft, Qmax, apcp[series_start], text(eurr_text, 10, :black, :right, :top))
+# end
+
+# watermark = @sprintf "generated on: %s, by autoGraph (Raphael Darley)\n from: %s" Date(now()) basename(file_path)
+
+# annotate!(plot_draft, cumulative[end] * 0.35, apcp[series_start], text(watermark, 6, :black, :left, :bottom))
+
 
 watermark = @sprintf "generated on: %s, by autoGraph (Raphael Darley)\n from: %s" Date(now()) basename(file_path)
 
-annotate!(plot_draft, cumulative[end] * 0.35, apcp[series_start], text(watermark, 6, :black, :left, :bottom))
+if Qmax !== NaN && cumulative[end] < Qmax
+    annotate!(plot_draft, Qmax, maximum(apcp[series_start:end]), text(eurr_text, 10, :black, :right, :top))
+    annotate!(plot_draft, Qmax * 0.6, maximum(apcp[series_start:end]), text(watermark, 6, :black, :centre, :bottom))
+else
+    annotate!(plot_draft, cumulative[end] * 0.6, maximum(apcp[series_start:end]), text(watermark, 6, :black, :centre, :bottom))
+end
+
+
+
+
 
 display(plot_draft)
 # end
