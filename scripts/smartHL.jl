@@ -1,5 +1,6 @@
 import XLSX
 using Plots
+using DataFrames, GLM
 
 
 xf = XLSX.readxlsx("bp-stats-review-2022-all-data.xlsx")
@@ -16,7 +17,8 @@ x_end = "BF"
 unit_setting = 1
 
 for i in type_start:type_end
-    i = 49 # Algeria
+    println(i)
+    # i = 49 # Algeria
     type_name = op_worksheet["$type_col$i"]
     if (typeof(type_name) == Missing)
         # println("skipped")
@@ -50,20 +52,20 @@ for i in type_start:type_end
     # end
 
     grad_acc = []
-    for i in eachindex(cumulative[1:end - 1])
+    for i in eachindex(cumulative[1:end-1])
         # println(i)
-        Δy = apcp[i + 1] - apcp[i]
-        Δx = cumulative[i + 1] - cumulative[i]
+        Δy = apcp[i+1] - apcp[i]
+        Δx = cumulative[i+1] - cumulative[i]
 
         grad = Δy / Δx
         # println(Δy / Δx) 
         push!(grad_acc, grad)
     end
 
-    map!((m) -> m>-0.0025, grad_acc, grad_acc)
+    map!((m) -> m > -0.0025, grad_acc, grad_acc)
 
-    for i in eachindex(grad_acc[1:end - 1])
-        if grad_acc[i] && grad_acc[i + 1]
+    for i in eachindex(grad_acc[1:end-1])
+        if grad_acc[i] && grad_acc[i+1]
             series_start = i
             break
         end
@@ -88,7 +90,30 @@ for i in type_start:type_end
         plot!(plot_draft, xlabel="cumulative, Gb", ylabel="annual/cumulative")
     end
 
+    global best_fit = lm(@formula(Y ~ X), DataFrame(X=cumulative, Y=apcp))
+    global fit_start = 1
+
+    for i in eachindex(grad_acc[1:end-12])
+        data = DataFrame(X=cumulative[i:end], Y=apcp[i:end])
+        ols = lm(@formula(Y ~ X), data)
+
+        if r2(ols) > r2(best_fit)
+            best_fit = ols
+            fit_start = i
+        end
+    end
+
+
+    Qmax = -coef(best_fit)[1] / coef(best_fit)[2]
+
+    if cumulative[fit_start] < Qmax
+        plot!(plot_draft, (x) -> coef(best_fit)[1] + coef(best_fit)[2] * x, cumulative[fit_start], Qmax)
+    else
+        plot!(plot_draft, (x) -> coef(best_fit)[1] + coef(best_fit)[2] * x)
+    end
+
     plot_name = join(split(plot_name, ":"))
-    break
+
+    display(plot_draft)
 end
-display(plot_draft)
+
