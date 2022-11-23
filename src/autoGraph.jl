@@ -132,7 +132,7 @@ function run_graph_gen()
 
             plot_name = join(split(plot_name, ":"))
 
-            png(plot_draft, "$out_path/$plot_name")
+            png(plot_draft, "$out_path/$i-$plot_name")
         end
     end
 
@@ -186,7 +186,7 @@ function run_graph_gen()
             end
 
             plot_name = join(split(plot_name, ":"))
-            png(plot_draft, "$out_path/$plot_name")
+            png(plot_draft, "$out_path/$i-$plot_name")
         end
     end
 
@@ -244,7 +244,7 @@ function run_graph_gen()
             end
 
             plot_name = join(split(plot_name, ":"))
-            png(plot_draft, "$out_path/$plot_name")
+            png(plot_draft, "$out_path/$i-$plot_name")
         end
     end
 
@@ -362,7 +362,7 @@ function run_graph_gen()
             end
 
 
-            png(plot_draft, "$out_path/$plot_name")
+            png(plot_draft, "$out_path/$i-$plot_name")
         end
     end
 
