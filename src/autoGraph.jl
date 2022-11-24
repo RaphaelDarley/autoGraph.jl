@@ -79,6 +79,7 @@ function run_graph_gen()
     println("1: Kb/d")
     println("2: Bcf/d")
     println("3: Bcm/a (Gcm/a)")
+    println("4: Mcm/a")
 
     print("Select source unit setting, leave blank for other.\n>>>")
     unit_setting = readline()
@@ -117,6 +118,8 @@ function run_graph_gen()
                 series = 365 / 1000 .* series
             elseif unit_setting == 3
                 series = series
+            elseif unit_setting == 4
+                series = 1 / 1000 .* series
             end
 
 
@@ -128,7 +131,9 @@ function run_graph_gen()
             elseif unit_setting == 2
                 plot!(plot_draft, ylabel="annual Tcf/a")
             elseif unit_setting == 3
-                plot!(plot_draft, ylabel="annual Tcm/a")
+                plot!(plot_draft, ylabel="annual Gcm/a")
+            elseif unit_setting == 4
+                plot!(plot_draft, ylabel="annual Gcm/a")
             end
 
             plot_name = join(split(plot_name, ":"))
@@ -161,6 +166,8 @@ function run_graph_gen()
                 series = 365 / 1_000 .* series
             elseif unit_setting == 3
                 series = series
+            elseif unit_setting == 4
+                series = 1 / 1000 .* series
             end
 
 
@@ -183,7 +190,9 @@ function run_graph_gen()
             elseif unit_setting == 2
                 plot!(plot_draft, xlabel="cumulative, Tcf", ylabel="annual/cumulative")
             elseif unit_setting == 3
-                plot!(plot_draft, xlabel="cumulative, Bcm", ylabel="annual/cumulative")
+                plot!(plot_draft, xlabel="cumulative, Gcm", ylabel="annual/cumulative")
+            elseif unit_setting == 4
+                plot!(plot_draft, xlabel="cumulative, Gcm", ylabel="annual/cumulative")
             end
 
             plot_name = join(split(plot_name, ":"))
@@ -215,6 +224,10 @@ function run_graph_gen()
                 series = 365 / 1000 .* series
             elseif unit_setting == 3
                 series = series
+            elseif unit_setting == 3
+                series = series
+            elseif unit_setting == 4
+                series = 1 / 1000 .* series
             end
 
             cumulative::Vector{Float64} = [series[1]]
@@ -229,6 +242,8 @@ function run_graph_gen()
                 cumulative = cumulative
             elseif unit_setting == 3
                 cumulative = cumulative
+            elseif unit_setting == 4
+                cumulative = cumulative
             end
 
             plot_draft = scatter(cumulative[2:end], series[2:end], legend=false)
@@ -241,7 +256,9 @@ function run_graph_gen()
             elseif unit_setting == 2
                 plot!(plot_draft, xlabel="cumulative, Tcf", ylabel="annual/cumulative")
             elseif unit_setting == 3
-                plot!(plot_draft, xlabel="cumulative, Bcm", ylabel="annual/cumulative")
+                plot!(plot_draft, xlabel="cumulative, Gcm", ylabel="annual/cumulative")
+            elseif unit_setting == 4
+                plot!(plot_draft, xlabel="cumulative, Gcm", ylabel="annual/cumulative")
             end
 
             plot_name = join(split(plot_name, ":"))
@@ -273,6 +290,8 @@ function run_graph_gen()
                 series = 365 / 1_000 .* series
             elseif unit_setting == 3
                 series = series
+            elseif unit_setting == 4
+                series = 1 / 1000 .* series
             end
 
 
@@ -315,7 +334,9 @@ function run_graph_gen()
             elseif unit_setting == 2
                 plot!(plot_draft, xlabel="cumulative, Tcf", ylabel="annual/cumulative")
             elseif unit_setting == 3
-                plot!(plot_draft, xlabel="cumulative, Bcm", ylabel="annual/cumulative")
+                plot!(plot_draft, xlabel="cumulative, Gcm", ylabel="annual/cumulative")
+            elseif unit_setting == 4
+                plot!(plot_draft, xlabel="cumulative, Gcm", ylabel="annual/cumulative")
             end
 
             best_fit = lm(@formula(Y ~ X), DataFrame(X=cumulative, Y=apcp))
@@ -345,12 +366,16 @@ function run_graph_gen()
 
             eurr_text = @sprintf "EUR: %.2f" Qmax
 
+            eurr_text *= " "
+
             if unit_setting == 1
                 eurr_text *= "Gb"
             elseif unit_setting == 2
                 eurr_text *= "Tcf"
             elseif unit_setting == 3
-                eurr_text *= "Bcm"
+                eurr_text *= "Gcm"
+            elseif unit_setting == 4
+                eurr_text *= "Gcm"
             end
 
             watermark = @sprintf "generated on: %s, by autoGraph (Raphael Darley)\n from: %s" Date(now()) basename(file_path)
