@@ -342,7 +342,7 @@ function run_graph_gen()
 
             plot_name = join(split(plot_name, ":"))
 
-            eurr_text = @sprintf "EURR: %.2f" Qmax
+            eurr_text = @sprintf "EUR: %.2f" Qmax
 
             if unit_setting == 1
                 eurr_text *= "Gb"
