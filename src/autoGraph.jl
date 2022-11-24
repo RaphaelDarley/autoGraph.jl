@@ -5,6 +5,7 @@ using Plots
 using TOML
 using Printf
 using Dates
+using DataFrames, GLM
 
 
 function contains_string(vec, str)
