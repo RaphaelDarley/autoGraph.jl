@@ -23,7 +23,7 @@ function run_graph_gen()
 
     worksheet_name = ""
     print("Please enter the name of the sheet to graph exactly\n>>>")
-    worksheet_name = readline()
+    worksheet_name = readline()  ## why given ln29?
     while !contains_string(worksheet_names, worksheet_name)
         print("Worksheet not found in file, try again, or quit and select new file.\n>>>")
         global worksheet_name = readline()
@@ -39,7 +39,7 @@ function run_graph_gen()
     #     type_col = readline()
     # end
 
-    print("Please enter range of rows for types, currently only ranges are supported, please enter the starting row number followed by a colon and the ending number, the second number should be larger than the starting number eg. 5:30.\n>>>")
+    print("Please enter range of rows for types [eg countries], currently only ranges are supported; enter the starting row number followed by a colon and the ending number, which should be larger than the starting number eg. 5:30.\n>>>")
     resp = readline()
     type_range = split(resp, ":")
     type_start = parse(Int, type_range[1])
@@ -202,7 +202,7 @@ function run_graph_gen()
 
     if "3" in chart_types # Annual against cumulative
 
-        print("Please enter a path to save the annaul vs cumulative files.\n>>>")
+        print("Please enter a path to save the annual vs cumulative [aP:CP] files.\n>>>")
         out_path = readline()
         out_path = Base.Filesystem.mkpath(out_path)
 
@@ -280,7 +280,7 @@ function run_graph_gen()
             end
             type_name = strip(type_name)
 
-            plot_name = "HL $worksheet_name-$type_name"
+            plot_name = "HL-trend $worksheet_name-$type_name"
 
             series = op_worksheet["$x_start$i:$x_end$i"][:]
 
@@ -401,7 +401,7 @@ end
 ### MAIN START
 
 println("Welcome to autoGraph!")
-println("This program is designed to automatically create graphs from the BP stats review")
+println("This program is designed to create graphs automatically from data sources [eg BP Stats]")
 
 config = Dict()
 try
@@ -437,7 +437,7 @@ global continue_prog = true
 
 while continue_prog
     run_graph_gen()
-    print("Would you like to graph another sheet from the same file?\n(N/y)")
+    print("Would you like to graph another sheet from the same file?\n(y/N)")
     continue_resp = readline()
     if lowercase(continue_resp) == "y"
         global continue_prog = true
