@@ -342,15 +342,15 @@ function run_graph_gen()
             best_fit = lm(@formula(Y ~ X), DataFrame(X=cumulative, Y=apcp))
             fit_start = 1
 
-            # for i in eachindex(grad_acc[1:end-12])
-            #     data = DataFrame(X=cumulative[i:end], Y=apcp[i:end])
-            #     ols = lm(@formula(Y ~ X), data)
+            for i in eachindex(grad_acc[1:end-12])
+                data = DataFrame(X=cumulative[i:end], Y=apcp[i:end])
+                ols = lm(@formula(Y ~ X), data)
 
-            #     if r2(ols) > r2(best_fit)
-            #         best_fit = ols
-            #         fit_start = i
-            #     end
-            # end
+                if r2(ols) > r2(best_fit)
+                    best_fit = ols
+                    fit_start = i
+                end
+            end
 
 
             Qmax = -coef(best_fit)[1] / coef(best_fit)[2]
