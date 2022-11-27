@@ -299,6 +299,9 @@ function run_graph_gen()
             apcp::Vector{Float64} = [1.0]
 
             for d in series
+                if d == 0
+                    continue
+                end
                 push!(cumulative, cumulative[end] + d)
                 push!(apcp, d / cumulative[end])
             end
