@@ -21,11 +21,12 @@ unit_setting = 1
 # for i in type_start:type_end
 # println(i)
 i = 49 # Algeria
+i = 28 # Azerbaijan
 type_name = op_worksheet["$type_col$i"]
-if (typeof(type_name) == Missing)
-    # println("skipped")
-    continue
-end
+# if (typeof(type_name) == Missing)
+#     # println("skipped")
+#     continue
+# end
 type_name = strip(type_name)
 
 plot_name = "HL $worksheet_name-$type_name"
@@ -41,6 +42,9 @@ cumulative::Vector{Float64} = [series[1]]
 apcp::Vector{Float64} = [1.0]
 
 for d in series
+    if d == 0
+        continue
+    end
     push!(cumulative, cumulative[end] + d)
     push!(apcp, d / cumulative[end])
 end
@@ -87,7 +91,6 @@ title!(plot_draft, plot_name)
 
 if unit_setting == 0
     plot!(plot_draft, xlabel="cumulative", ylabel="annual/cumulative")
-
 elseif unit_setting == 1
     plot!(plot_draft, xlabel="cumulative, Gb", ylabel="annual/cumulative")
 end
